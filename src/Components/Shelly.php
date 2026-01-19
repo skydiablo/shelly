@@ -11,6 +11,7 @@ use SkyDiablo\Shelly\Components\Shelly\UpdateStage;
 
 use SkyDiablo\Shelly\Payload\Payload;
 
+use function React\Async\async;
 use function React\Async\await;
 
 class Shelly extends Executer
@@ -97,7 +98,7 @@ class Shelly extends Executer
 
     public function reboot(int $delayMs = 1000): PromiseInterface
     {
-        $delayMs = max($delayMs, 500);
+        $delayMs = max($delayMs, 1000);
         $params = ['delay_ms' => $delayMs];
 
         return $this->execute($this->generatePayload('Reboot', $params));
@@ -129,12 +130,18 @@ class Shelly extends Executer
 
     protected function putTLS(string $command, ?string $data = null): PromiseInterface
     {
-        $params = ['data' => $data, 'append' => false]; //replace existing
+        return async(function ($command, $data) {
+            $lines = explode("\n", (string)$data);
+            for ($i = 0; $i < count($lines); $i++) {
+                $params = ['data' => $lines[$i], 'append' => ($i !== 0)]; //replace existing
+                await($this->execute($this->generatePayload($command, $params)));
+            }
 
-        file_put_contents('/tmp/'.$command, $data);
-
-        return $this
-            ->execute($this->generatePayload($command, $params));
+            return true;
+        })(
+            $command,
+            $data,
+        );
     }
 
     public function putUserCA(?string $data = null): PromiseInterface

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace SkyDiablo\Shelly\Components\MQTT;
 
-use SkyDiablo\Shelly\Components\MQTT\ConfigurationInterface;
 use SkyDiablo\Shelly\Utils\ArrayUtils;
 
 class Configuration implements ConfigurationInterface
 {
+
+    protected array $forceSerializeFields = [];
+
     public function __construct(
         protected bool $enabled = true,
         protected ?string $server = null,
@@ -24,6 +26,13 @@ class Configuration implements ConfigurationInterface
         protected bool $enableControl = true,
     ) {}
 
+    public function forceSerializeFields(string ...$field): self
+    {
+        $this->forceSerializeFields = $field;
+
+        return $this;
+    }
+
 
     /**
      * @inheritDoc
@@ -36,12 +45,12 @@ class Configuration implements ConfigurationInterface
             'client_id'       => $this->clientId,
             'user'            => $this->username,
             'pass'            => $this->password,
-            'ssl_ca'          => $this->sslCa->value ?: null,
+            'ssl_ca'          => $this->sslCa->value,
             'topic_prefix'    => $this->topicPrefix,
             'rpc_ntf'         => $this->rpcNotification,
             'status_ntf'      => $this->statusNotification,
             'use_client_cert' => $this->useClientCert,
             'enable_control'  => $this->enableControl,
-        ], ['ssl_ca']);
+        ], $this->forceSerializeFields);
     }
 }
