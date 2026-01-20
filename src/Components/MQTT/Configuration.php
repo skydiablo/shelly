@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
         protected bool $statusNotification = false,
         protected bool $useClientCert = false,
         protected bool $enableControl = true,
+        protected bool $enableRpc = false,
     ) {}
 
     public function forceSerializeFields(string ...$field): self
@@ -51,6 +52,7 @@ class Configuration implements ConfigurationInterface
             'status_ntf'      => $this->statusNotification,
             'use_client_cert' => $this->useClientCert,
             'enable_control'  => $this->enableControl,
+            'enable_rpc'      => $this->enableRpc,
         ], $this->forceSerializeFields);
     }
 }
