@@ -133,7 +133,8 @@ class Shelly extends Executer
         return async(function ($command, $data) {
             $lines = explode("\n", (string)$data);
             for ($i = 0; $i < count($lines); $i++) {
-                $params = ['data' => $lines[$i], 'append' => ($i !== 0)]; //replace existing
+                $line = $lines[$i]."\n";
+                $params = ['data' => $line, 'append' => ($i !== 0)]; //replace existing
                 await($this->execute($this->generatePayload($command, $params)));
             }
 
