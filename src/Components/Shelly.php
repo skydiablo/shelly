@@ -131,10 +131,9 @@ class Shelly extends Executer
     protected function putTLS(string $command, ?string $data = null): PromiseInterface
     {
         return async(function ($command, $data) {
-            $lines = explode("\n", (string)$data);
-            for ($i = 0; $i < count($lines); $i++) {
-                $line = $lines[$i]."\n";
-                $params = ['data' => $line, 'append' => ($i !== 0)]; //replace existing
+            $chunks = str_split((string)$data, 1024);
+            for ($i = 0; $i < count($chunks); $i++) {
+                $params = ['data' => $chunks[$i], 'append' => ($i !== 0)]; //replace existing
                 await($this->execute($this->generatePayload($command, $params)));
             }
 
@@ -155,7 +154,7 @@ class Shelly extends Executer
         return $this->putTLS('PutTLSClientCert', $data);
     }
 
-    public function putTLSClientKey(?string $data = null, bool $append = false): PromiseInterface
+    public function putTLSClientKey(?string $data = null): PromiseInterface
     {
         return $this->putTLS('PutTLSClientKey', $data);
     }
